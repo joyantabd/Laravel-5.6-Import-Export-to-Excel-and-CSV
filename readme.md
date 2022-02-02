@@ -3,7 +3,7 @@ If you get this error
 ```js
 PHPExcel Error: Array and string offset access syntax with curly braces is deprecated
 ```
-just go to this ripo vendor and copy the phpoffice file and paste it to your project corresponding directory hope this will work perfectly.
+just go to this ripo vendor and copy the phpoffice file and paste it to your project corresponding directory(blog\vendor) hope this will work perfectly.
 
 
 ## Laravel 5.6 Import Export to Excel and CSV example
