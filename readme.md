@@ -1,65 +1,236 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+## First Warning
+If you get this error (PHPExcel Error: Array and string offset access syntax with curly braces is deprecated) just go to this ripo vendor and copy the phpoffice file and paste it to your project hope this will work perfectly.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## Lets start with the whole work
 
-## About Laravel
+## Laravel 5.6 Import Export to Excel and CSV example
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+## Step 1 : Install Laravel 5.6 Project
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+First of all, we will install Laravel 5.6 application using bellow command, So open your terminal OR command prompt and run bellow command:
+```
+composer create-project --prefer-dist laravel/laravel blog
+```
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications.
+## Step 2: Install Maatwebsite Package
 
-## Learning Laravel
+In this step we need to install Maatwebsite package via the Composer package manager, so one your terminal and fire bellow command:
+```
+composer require maatwebsite/excel
+```
+OR
+```
+composer require "maatwebsite/excel":"~2.1.0"
+```
+Now open config/app.php file and add service provider and aliase.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of any modern web application framework, making it a breeze to get started learning the framework.
+## config/app.php
+```
+'providers' => [
+	....
+	Maatwebsite\Excel\ExcelServiceProvider::class,
+],
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+'aliases' => [
+	....
+	'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+],
+```
 
-## Laravel Sponsors
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell):
+## Step 3: Create Item Table and Model
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
+In this step we have to create migration for items table using Laravel 5.6 php artisan command, so first fire bellow command:
+```
+php artisan make:migration create_items_table
+```
+After this command you will find one file in following path "database/migrations" and you have to put bellow code in your migration file for create items table.
+```
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+class CreateItemsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('items', function (Blueprint $table) {
+           $table->increments('id');
+           $table->string('title');
+           $table->text('description');
+           $table->timestamps();
+       });
+    }
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop("items");
+    }
+}
+```
+After create "items" table you should create Item model for items, so first create file in this path "app/Item.php" and put bellow content in item.php file:
 
-## License
+## app/Item.php
+```
+<?php
+ 
+namespace App;
+ 
+use Illuminate\Database\Eloquent\Model;
+ 
+class Item extends Model
+{
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    public $fillable = ['title','description'];
+}
+```
+## Step 4: Add Routes
+
+In this step, we need to create route of import export file. so open your "routes/web.php" file and add following route.
+
+## routes/web.php
+```
+Route::get('importExport', 'MaatwebsiteDemoController@importExport');
+Route::get('downloadExcel/{type}', 'MaatwebsiteDemoController@downloadExcel');
+Route::post('importExcel', 'MaatwebsiteDemoController@importExcel');
+```
+## Step 5: Create MaatwebsiteDemoController Controller
+
+In this step, now we should create new controller as MaatwebsiteDemoController in this path "app/Http/Controllers/MaatwebsiteDemoController.php". this controller will manage all impostExport, downloadExcel and importExcel request and return response, so put bellow content in controller file:
+
+## app/Http/Controllers/MaatwebsiteDemoController.php
+```
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use App\Item;
+use DB;
+use Excel;
+use Illuminate\Http\Request;
+ 
+class MaatwebsiteDemoController extends Controller
+{
+ 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importExport()
+    {
+        return view('importExport');
+    }
+ 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadExcel($type)
+    {
+        $data = Item::get()->toArray();
+            
+        return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
+            $excel->sheet('mySheet', function($sheet) use ($data)
+            {
+                $sheet->fromArray($data);
+            });
+        })->download($type);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required'
+        ]);
+ 
+        $path = $request->file('import_file')->getRealPath();
+        $data = Excel::load($path)->get();
+ 
+        if($data->count()){
+            foreach ($data as $key => $value) {
+                $arr[] = ['title' => $value->title, 'description' => $value->description];
+            }
+ 
+            if(!empty($arr)){
+                Item::insert($arr);
+            }
+        }
+ 
+        return back()->with('success', 'Insert Record successfully.');
+    }
+}
+```
+## Step 6: Create Blade File
+
+In Last step, let's create importExport.blade.php(resources/views/importExport.blade.php) for layout and we will write design code here and put following code:
+
+## resources/views/importExport.blade.php
+```
+<html lang="en">
+<head>
+    <title>Laravel 5.6 Import Export to Excel and csv Example - ItSolutionStuff.com</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" >
+</head>
+<body>
+    <div class="container">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+          <h1>Laravel 5.6 Import Export to Excel and CSV Example - ItSolutionStuff.com</h1>
+          </div>
+          <div class="panel-body">
+ 
+            <a href="{{ url('downloadExcel/xls') }}"><button class="btn btn-success">Download Excel xls</button></a>
+            <a href="{{ url('downloadExcel/xlsx') }}"><button class="btn btn-success">Download Excel xlsx</button></a>
+            <a href="{{ url('downloadExcel/csv') }}"><button class="btn btn-success">Download CSV</button></a>
+ 
+            <form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ url('importExcel') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                @csrf
+ 
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+ 
+                @if (Session::has('success'))
+                    <div class="alert alert-success">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+                        <p>{{ Session::get('success') }}</p>
+                    </div>
+                @endif
+ 
+                <input type="file" name="import_file" />
+                <button class="btn btn-primary">Import File</button>
+            </form>
+ 
+          </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+Now you can check on your laravel 5.6 application with demo file for testing.
