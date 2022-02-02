@@ -1,7 +1,6 @@
 ## First Warning
 If you get this error (PHPExcel Error: Array and string offset access syntax with curly braces is deprecated) just go to this ripo vendor and copy the phpoffice file and paste it to your project hope this will work perfectly.
 
-## Lets start with the whole work
 
 ## Laravel 5.6 Import Export to Excel and CSV example
 
@@ -9,7 +8,7 @@ If you get this error (PHPExcel Error: Array and string offset access syntax wit
 
 First of all, we will install Laravel 5.6 application using bellow command, So open your terminal OR command prompt and run bellow command:
 ```
-composer create-project --prefer-dist laravel/laravel blog
+composer create-project --prefer-dist laravel/laravel blog "5.6.*"
 ```
 
 ## Step 2: Install Maatwebsite Package
@@ -17,9 +16,7 @@ composer create-project --prefer-dist laravel/laravel blog
 In this step we need to install Maatwebsite package via the Composer package manager, so one your terminal and fire bellow command:
 ```
 composer require maatwebsite/excel
-```
 OR
-```
 composer require "maatwebsite/excel":"~2.1.0"
 ```
 Now open config/app.php file and add service provider and aliase.
@@ -187,14 +184,14 @@ In Last step, let's create importExport.blade.php(resources/views/importExport.b
 ```
 <html lang="en">
 <head>
-    <title>Laravel 5.6 Import Export to Excel and csv Example - ItSolutionStuff.com</title>
+    <title>Laravel 5.6 Import Export to Excel and csv Example - Joyanta</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" >
 </head>
 <body>
     <div class="container">
         <div class="panel panel-default">
           <div class="panel-heading">
-          <h1>Laravel 5.6 Import Export to Excel and CSV Example - ItSolutionStuff.com</h1>
+          <h1>Laravel 5.6 Import Export to Excel and CSV Example -Joyanta</h1>
           </div>
           <div class="panel-body">
  
@@ -234,3 +231,6 @@ In Last step, let's create importExport.blade.php(resources/views/importExport.b
 </html>
 ```
 Now you can check on your laravel 5.6 application with demo file for testing.
+```
+http://127.0.0.1:8000/importExport
+```
